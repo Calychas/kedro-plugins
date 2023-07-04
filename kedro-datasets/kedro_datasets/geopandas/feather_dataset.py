@@ -1,6 +1,6 @@
 """GeoJSONDataSet loads and saves data to a local geojson file. The
 underlying functionality is supported by geopandas, so it supports all
-allowed geopandas (pandas) options for loading and saving geojson files.
+allowed geopandas (pandas) options for loading and saving geosjon files.
 """
 import copy
 from pathlib import PurePosixPath
@@ -17,7 +17,7 @@ from kedro.io.core import (
 )
 
 
-class GeoJSONDataSet(
+class FeatherDataSet(
     AbstractVersionedDataSet[
         gpd.GeoDataFrame, Union[gpd.GeoDataFrame, Dict[str, gpd.GeoDataFrame]]
     ]
@@ -45,7 +45,7 @@ class GeoJSONDataSet(
     """
 
     DEFAULT_LOAD_ARGS: Dict[str, Any] = {}
-    DEFAULT_SAVE_ARGS = {"driver": "GeoJSON"}
+    DEFAULT_SAVE_ARGS: Dict[str, Any] = {}
 
     # pylint: disable=too-many-arguments
     def __init__(
@@ -124,12 +124,12 @@ class GeoJSONDataSet(
     def _load(self) -> Union[gpd.GeoDataFrame, Dict[str, gpd.GeoDataFrame]]:
         load_path = get_filepath_str(self._get_load_path(), self._protocol)
         with self._fs.open(load_path, **self._fs_open_args_load) as fs_file:
-            return gpd.read_file(fs_file, **self._load_args)
+            return gpd.read_feather(fs_file, **self._load_args)
 
     def _save(self, data: gpd.GeoDataFrame) -> None:
         save_path = get_filepath_str(self._get_save_path(), self._protocol)
         with self._fs.open(save_path, **self._fs_open_args_save) as fs_file:
-            data.to_file(fs_file, **self._save_args)
+            data.to_feather(fs_file, **self._save_args)
         self.invalidate_cache()
 
     def _exists(self) -> bool:
